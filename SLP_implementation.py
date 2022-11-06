@@ -1,5 +1,7 @@
 import numpy as np
-
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 #
 # Perceptron implementation
@@ -77,3 +79,5 @@ class CustomPerceptron(object):
         total_data_count = len(X)
         self.score_ = (total_data_count - misclassified_data_count) / total_data_count
         return self.score_
+
+
