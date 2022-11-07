@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 def append_DF(C1, C2):
     c1_c2 = C1.append(C2, ignore_index=True, verify_integrity=True, sort=True)
+    if c1_c2.iloc[0,5] == 'Adelie':
+        c1_c2["species"] = [1 if kind == 'Adelie' else -1 for kind in c1_c2['species']]
+    else : c1_c2["species"] = [1 if kind == 'Gentoo' else -1 for kind in c1_c2['species']]
     return c1_c2
 
 
@@ -12,18 +15,85 @@ def split_features(DF,X1, X2, Y):
     X1 = DF.iloc[:,X1]; X1 = X1.to_numpy()
     X2 = DF.iloc[:,X2]; X2 = X2.to_numpy()
     Y = DF.iloc[:,Y]; Y = Y.to_numpy()
-    X1_train = X1[:30]
-    X1_test = X1[30:50]
-    X2_train = X2[:30]
-    X2_test = X2[30:50]
-    Y_train = Y[:30]
-    Y_test = Y[30:50]
-    train_data = pd.DataFrame(columns=[X1_train, X2_train,Y_train])
-    test_data = pd.DataFrame(columns=[X1_test, X2_test,Y_test])
-    return train_data,test_data
+    ########## feature 1 ###########
+    X1_train_c1 = X1[:30]; X1_train_c2 = X1[50:80]  # training data 60
+    X1_test_c1 = X1[30:50]; X1_test_c2 = X1[80:100] # testing data 40
+    ########## feature 2 ###########
+    X2_train_c1 = X2[:30]; X2_train_c2 = X2[50:80]  # training data 60
+    X2_test_c1 = X2[30:50]; X2_test_c2 = X2[80:100] # testing data 40
+    ########## Y label ###########
+    Y_train_c1 = Y[:30]; Y_train_c2 = Y[50:80]  # training data 60
+    Y_test_c1 = Y[30:50]; Y_test_c2 = Y[80:100] # testing data 40
+    ''' Appending the X_Train data of feature 1'''
+    X1_train = np.append(X1_train_c1, X1_train_c2)
+    ''' Appending the X_Train data of feature 2'''
+    X2_train = np.append(X2_train_c1, X2_train_c2)
+    ''' Appending the X_Test data of feature 1'''
+    X1_test = np.append(X1_test_c1, X1_test_c2)
+    ''' Appending the X_Test data of feature 2'''
+    X2_test = np.append(X2_test_c1, X2_test_c2)
+    ''' Appending the Y_Train data'''
+    Y_train = np.append(Y_train_c1,Y_train_c2)
+    ''' Appending the Y_Test data'''
+    Y_test = np.append(Y_test_c1,Y_test_c2)
+    ''' Appending the X data of feature 1'''
+    X1_all = np.append(X1_train,X1_test)
+    ''' Appending the X data of feature 2'''
+    X2_all = np.append(X2_train,X2_test)
+    ''' Appending the Y data'''
+    Y_all = np.append(Y_train,Y_test)
+    all = zip(X1_all,X2_all,Y_all)
+    df = pd.DataFrame(all, columns=["feature 1","feature 2","label"])
+    return df
 
 
 def visualization(X1, X2, DF):
     sns.scatterplot(x=X1, y=X2, data=DF, hue='species'
                     , palette={0: 'red', 1: 'green', 2: 'blue'})
     plt.show()
+
+# def perceptron_train(in_data,labels,alpha=0.1):
+#     errors = []
+#     X=np.array(in_data)
+#     y=np.array(labels)
+#     rgen = np.random.RandomState(1)
+#     weights= rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
+#     original=weights
+#     bias=np.random.random_sample()
+#     for key in range(X.shape[0]):
+#         #a=activation_func(np.matmul(np.transpose(weights),X[key]))
+#         yp=activation_func(np.dot(weights,X[key]) + bias)
+#         weights=weights+alpha*(y[key]-yp)* float(X[key])
+#         bias=bias+alpha*(y[key]-yp)* 1
+#         update = alpha * (y[key] - yp)
+#         errors += int(update != 0.0)
+#         print('Iteration '+str(key)+': '+str(weights))
+#     print('Difference: '+str(weights-original))
+#     return weights, bias
+#
+# def activation_func(X):
+#     if X == 0:
+#         return 0
+#     else:
+#         return X / abs(X)
+#
+# def perceptron_test(in_data,label_shape,weights, bias):
+#     X=np.array(in_data)
+#     y=np.zeros(label_shape)
+#     for key in range(X.shape[1]):
+#         a = activation_func(weights*X[key].sum())
+#         y[key]=0
+#         if a == 1:
+#             y[key]=1
+#         elif a == -1:
+#             y[key]=0
+#     return y
+#
+# def score(result,labels):
+#     difference=result-np.array(labels)
+#     correct_ctr=0
+#     for elem in range(difference.shape[0]):
+#         if difference[elem]==0:
+#             correct_ctr+=1
+#     score=correct_ctr*100/difference.size
+#     print('Score='+str(score))
